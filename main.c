@@ -29,13 +29,13 @@ int    get_key(char *buff, int length)
 		int nb = read(0, buff, length);
 		return (nb);
 }
-/*
+
 void    print_key(char    *buff, int size)
 {
 		printf("lettre : %d, %d, %d, %d\n", buff[0], buff[1], buff[2], size);
 		fflush(stdout);//vide le tampon de sortie (merci google)
 }
-*/
+
 char	*ft_str_reverse(char *str, int len)
 {
 	char temp;
@@ -95,61 +95,84 @@ char	*ft_itoa(int nb)
 	return (res);
 }
 
+int	ft_print_object(char object, int xa, int ya)
+{
+    	char	*strxa;
+    	strxa = malloc(sizeof(char) * 10);
+    	if (strxa == NULL)
+	    return 1;
+    	char	*strya;
+    	strya = malloc(sizeof(char) * 10);
+    	if (strya == NULL)
+	    return 1;
+	write(1, "\033[", 2);
+	strya = ft_itoa(ya);
+	ft_put_str(strya);
+	free(strya);
+	write(1, ";", 1);
+	strxa = ft_itoa(xa);
+	ft_put_str(strxa);
+	free(strxa);
+	write(1, "H", 1);
+	write(1, &object, 1);
+	return (0);
+}
+
+void	ft_show_enemies(void)
+{
+	ft_print_object('x', 18, 18);
+}
+
 int    main()
 {
-    struct termios    old;
-    char	c[3];
-    char	*strxa;
-    strxa = malloc(sizeof(char) * 10);
-    if (strxa == NULL)
-	    return 1;
-    char	*strya;
-    strya = malloc(sizeof(char) * 10);
-    if (strya == NULL)
-	    return 1;
-    int xa = 20;
-    int ya = 20;
+   	struct termios    old;
+   	char	c[3];
+   	int xa = 20;
+    	int ya = 20;
 
-    old = *setup(&old);
-    while (1)
-    {
-        get_key(c, 3);
-	if (c[2] >= 65 && c[2] <= 68)
-	{
+    	old = *setup(&old);
+    	while (1)
+    	{
+		if (xa == 18 && ya == 18)
+		{
+			write(1, "\033[2J\033[H\033[?25l", 13); // Efface l'ecran du terminal et le curseur
+			ft_print_object(' ', 20, 20);
+			write(1, "YOU ARE DEAD", 12);
+		}
+        	get_key(c, 3);
+		if ((c[2] >= 65 && c[2] <= 68) && c[0] == 27)
+		{
 
-		//
-		//
-		//ATTENTION PROBLEME JE PEUX appuyer sur nimporte quelle touche et ca me fait avancer sur x
-		//
-		//
-		write(1, "\033[2J\033[H", 7);
-		// print_key(c, 3);
-		if (c[2] == 67) // Droite
-			ya++;
-		if (c[2] == 68) // Gauche
-			ya--;
-		if (c[2] == 66) // Bas
-			xa++;
-		if (c[2] == 65) // Haut
-			xa--;
-		write(1, "\033[", 2);
-		strxa = ft_itoa(xa);
-		ft_put_str(strxa);
-		free(strxa);
-		write(1, ";", 1);
-		strya = ft_itoa(ya);
-		ft_put_str(strya);
-		free(strya);
-		if (c[2] == 67) // Droite
-			write(1, "Ho>", 3);
-		if (c[2] == 68) // Gauche
-			write(1, "H<o", 3);
-		if (c[2] == 66) // Bas
-			write(1, "Hov", 3);
-		if (c[2] == 65) // Haut
-			write(1, "Ho^", 3);
-		fflush(stdout);//vide le tampon de sortie (merci google)	
-	}
-    }
-    tcsetattr(STDIN_FILENO, TCSAFLUSH, &old);
-}
+			write(1, "\033[2J\033[H\033[?25l", 13); // Efface l'ecran du terminal et le curseur
+			print_key(c, 3);
+			if (c[2] == 67) // Droite
+			{
+				xa++;
+				ft_print_object('O', xa, ya);
+				ft_print_object('>', xa + 1, ya);
+			}
+			if (c[2] == 68) // Gauche
+			{
+				xa--;
+				ft_print_object('<', xa - 1, ya);
+				ft_print_object('O', xa, ya);
+			}
+			if (c[2] == 66) // Bas
+			{
+				ya++;
+				ft_print_object('O', xa, ya);
+				ft_print_object('-', xa, ya + 1);
+			}
+			if (c[2] == 65) // Haut
+			{
+				ya--;
+				ft_print_object('-', xa, ya - 1);
+				ft_print_object('O', xa, ya);
+			}
+			ft_show_enemies();
+			fflush(stdout);//vide le tampon de sortie (merci google)	
+		}	
+    	}	
+    	tcsetattr(STDIN_FILENO, TCSAFLUSH, &old);
+	return (0);
+}		
