@@ -3,6 +3,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+typedef struct entity
+{
+	int alive;
+	int xa;
+	int ya;
+} Enemy;
+
 void	ft_put_str(char *str)
 {
 	int (i) = 0;
@@ -129,49 +136,136 @@ int    main()
    	char	c[3];
    	int xa = 20;
     	int ya = 20;
+	int droite = 0;
+	int gauche = 0;
+	int haut = 0;
+	int bas = 0;
+	Enemy mob1;
+	mob1.alive = 1;
+	mob1.xa = 18;
+	mob1.ya = 18;
 
     	old = *setup(&old);
     	while (1)
     	{
-		if (xa == 18 && ya == 18)
+		if (xa == 18 && ya == 18 && mob1.alive == 1)
 		{
+			while (c[0] != 101)
+			{
+				write(1, "\033[2J\033[H\033[?25l", 13); // Efface l'ecran du terminal et le curseur
+				ft_print_object(' ', 20, 20);
+				write(1, "YOU ARE DEAD - Press E to revive", 32);
+				get_key(c, 3);
+			}
+			xa = 20;
+			ya = 20;
 			write(1, "\033[2J\033[H\033[?25l", 13); // Efface l'ecran du terminal et le curseur
-			ft_print_object(' ', 20, 20);
-			write(1, "YOU ARE DEAD", 12);
+			print_key(c, 3);
+			write(1, "\nUse arrows to move, D to attack, E to make the enemy respawn.", 61);
+			ft_print_object('O', xa, ya);
+			ft_print_object('>', xa + 1, ya);
+			ft_show_enemies();
+			fflush(stdout);//vide le tampon de sortie (merci google)	
 		}
         	get_key(c, 3);
 		if ((c[2] >= 65 && c[2] <= 68) && c[0] == 27)
 		{
-
 			write(1, "\033[2J\033[H\033[?25l", 13); // Efface l'ecran du terminal et le curseur
 			print_key(c, 3);
+			write(1, "\nUse arrows to move, D to attack, E to make the enemy respawn.", 61);
 			if (c[2] == 67) // Droite
 			{
 				xa++;
 				ft_print_object('O', xa, ya);
 				ft_print_object('>', xa + 1, ya);
+				droite = 1;
+				gauche = 0;
+				haut = 0;
+				bas = 0;
 			}
 			if (c[2] == 68) // Gauche
 			{
 				xa--;
 				ft_print_object('<', xa - 1, ya);
 				ft_print_object('O', xa, ya);
+				gauche = 1;
+				droite = 0;
+				haut = 0;
+				bas = 0;
 			}
 			if (c[2] == 66) // Bas
 			{
 				ya++;
 				ft_print_object('O', xa, ya);
 				ft_print_object('-', xa, ya + 1);
+				bas = 1;
+				droite = 0;
+				gauche = 0;
+				haut = 0;
 			}
 			if (c[2] == 65) // Haut
 			{
 				ya--;
 				ft_print_object('-', xa, ya - 1);
 				ft_print_object('O', xa, ya);
+				haut = 1;
+				droite = 0;
+				gauche = 0;
+				bas = 0;
 			}
-			ft_show_enemies();
-			fflush(stdout);//vide le tampon de sortie (merci google)	
 		}	
+		if (c[0] == 100)
+		{
+			write(1, "\033[2J\033[H\033[?25l", 13); // Efface l'ecran du terminal et le curseur
+			print_key(c, 3);
+			if (droite)
+			{
+				ft_print_object('O', xa, ya);
+				ft_print_object('>', xa + 1, ya);
+				ft_print_object('-', xa + 3, ya);
+				ft_print_object('|', xa + 4, ya);
+				ft_print_object('=', xa + 5, ya);
+				ft_print_object('=', xa + 6, ya);
+				ft_print_object('>', xa + 7, ya);
+				if (ya == 18 && ((xa + 1) <= 18) && (18 <= (xa + 7)))
+					mob1.alive = 0;
+			}
+			if (gauche)
+			{
+				ft_print_object('-', xa - 3, ya);
+				ft_print_object('|', xa - 4, ya);
+				ft_print_object('=', xa - 5, ya);
+				ft_print_object('=', xa - 6, ya);
+				ft_print_object('<', xa - 7, ya);
+				ft_print_object('<', xa - 1, ya);
+				ft_print_object('O', xa, ya);
+				if (ya == 18 && ((xa - 1) >= 18) && (18 >= (xa - 7)))
+					mob1.alive = 0;
+			}
+			if (haut)
+			{
+				ft_print_object('^', xa, ya - 3);
+				ft_print_object('|', xa, ya - 2);
+				ft_print_object('-', xa, ya - 1);
+				ft_print_object('O', xa, ya);
+				if (xa == 18 && ((ya - 1) >= 18) && (18 >= (ya - 3)))
+					mob1.alive = 0;
+			}
+			if (bas)
+			{
+				ft_print_object('O', xa, ya);
+				ft_print_object('-', xa, ya + 1);
+				ft_print_object('|', xa, ya + 2);
+				ft_print_object('v', xa, ya + 3);
+				if (xa == 18 && ((ya + 1) <= 18) && (18 <= (ya + 3)))
+					mob1.alive = 0;
+			}
+		}
+		if (c[0] == 101)
+			mob1.alive = 1;
+		if (mob1.alive == 1)
+			ft_show_enemies();
+		fflush(stdout);//vide le tampon de sortie (merci google)	
     	}	
     	tcsetattr(STDIN_FILENO, TCSAFLUSH, &old);
 	return (0);
