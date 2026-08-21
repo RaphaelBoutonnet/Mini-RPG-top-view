@@ -2,6 +2,7 @@
 #include <termios.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ncurses.h>
 
 typedef struct entity
 {
@@ -222,10 +223,9 @@ int    main()
 			write(1, "\033[2J\033[H\033[?25l", 13); // Efface l'ecran du terminal et le curseur
 			print_key(c, 3);
 			write(1, "\nUse arrows to move, D to attack, E to make the enemy respawn.", 61);
-			if (c[2] == 67) // Droite
+			if (c[2] == 67 && (mvinch(xa + 1, ya) != 'I')) // Droite
 			{
-				if (xa < 49)
-					xa++;
+				xa++;
 				ft_print_object('O', xa, ya);
 				ft_print_object('>', xa + 1, ya);
 				droite = 1;
@@ -233,10 +233,9 @@ int    main()
 				haut = 0;
 				bas = 0;
 			}
-			if (c[2] == 68) // Gauche
+			if (c[2] == 68 && (mvinch(xa - 1, ya) != 'I')) // Gauche
 			{
-				if (xa > 11)
-					xa--;
+				xa--;
 				ft_print_object('<', xa - 1, ya);
 				ft_print_object('O', xa, ya);
 				gauche = 1;
@@ -244,10 +243,9 @@ int    main()
 				haut = 0;
 				bas = 0;
 			}
-			if (c[2] == 66) // Bas
+			if (c[2] == 66 && (mvinch(xa, ya + 1) != '-')) // Bas
 			{
-				if (ya < 40)
-					ya++;
+				ya++;
 				ft_print_object('O', xa, ya);
 				ft_print_object('-', xa, ya + 1);
 				bas = 1;
@@ -255,10 +253,9 @@ int    main()
 				gauche = 0;
 				haut = 0;
 			}
-			if (c[2] == 65) // Haut
+			if (c[2] == 65 && (mvinch(xa, ya - 1) != '-')) // Haut
 			{
-				if (ya > 11)
-					ya--;
+				ya--;
 				ft_print_object('-', xa, ya - 1);
 				ft_print_object('O', xa, ya);
 				haut = 1;
